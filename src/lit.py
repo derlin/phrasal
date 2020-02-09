@@ -8,31 +8,27 @@ from corona.tools import *
 
 
 class Pipeline:
-    crawler = JustextCrawler()
+    crawler = JustextCrawler(keep_bad=True)
     splitter = MocySplitter()
     filter = PatternSentenceFilter()
     normalizer = Normalizer()
 
 
-@st.cache()
+@st.cache
 def get_pipeline():
     return Pipeline()
 
 
-@st.cache()
+@st.cache
 def fetch_url(p, url):
     return p.crawler.crawl(url).text
 
 
-@st.cache()
-def parse_text(p, text, normalize, fix_encoding, strip_emojis):
+@st.cache
+def get_df(p, text, normalize, fix_encoding, strip_emojis, more):
     if normalize:
         text = p.normalizer.normalize(text, fix_encoding=fix_encoding, strip_emojis=strip_emojis)
-    return p.splitter.split(text)
-
-
-@st.cache()
-def get_df(p, sentences):
+    sentences = p.splitter.split(text, more)
     return pd.DataFrame([[p.filter.is_valid(s), s] for s in sentences], columns=['valid', 'text'])
 
 
@@ -44,6 +40,7 @@ def get_table_download_link(df, filename='corona.csv', text='Download CSV file')
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
     return f'<a href="data:file/csv;base64,{b64}" download="{filename}">{text}</a>'
+
 
 # == general style
 
@@ -61,8 +58,10 @@ normalize = st.sidebar.checkbox('Normalize text', value=True)
 if normalize:
     fix_encoding = st.sidebar.checkbox('Fix encoding')
     strip_emojis = st.sidebar.checkbox('Strip emojis')
+    more = st.sidebar.checkbox('Split on ;:', value=True)
 else:
-    fix_encoding, strip_emojis = False, False
+    fix_encoding, strip_emojis, more = False, False, True
+proper_punc = st.sidebar.checkbox('Enforce proper ending (!?.:;)', value=True)
 
 st.sidebar.markdown('*Display*')
 valid_only = st.sidebar.checkbox('Show valid only', value=True)
@@ -84,16 +83,19 @@ if url:
     else:
         try:
             text = fetch_url(p, url)
-            res = parse_text(p, text, normalize, fix_encoding, strip_emojis)
-            df = get_df(p, res)
+            df = get_df(p, text, normalize, fix_encoding, strip_emojis, more)
+            if proper_punc:
+                df = df.copy()
+                df.loc[df.text.apply(lambda t: t[-1] not in '!?.:;'), 'valid'] = False
             st.markdown(f"""
-            The raw extracted text had `{len(text)}` characters split into `{len(res)}` "chunks"
+            The raw extracted text had `{len(text)}` characters split into `{len(df)}` "chunks"
             (`{len(df.drop_duplicates())}` unique). `{len(df[df.valid])}` are considered proper sentences.
             """)
             if valid_only:
                 df = df[df.valid][['text']]
             if hide_duplicates:
                 df.drop_duplicates('text', inplace=True)
+
             st.markdown(f'<p style="text-align: right">{get_table_download_link(df)} ({len(df)} rows)</p>',
                         unsafe_allow_html=True)
             st.table(df)

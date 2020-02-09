@@ -66,35 +66,38 @@ class MocySplitter:
         # TODO: keep_newlines seems better with Justext, but http://www.raere-waggis.ch/p300fasnacht2007.htm
         # things like songs etc ...
 
-    def split(self, input_text):  # -> List[str]
+    def split(self, input_text, more=None):  # -> List[str]
         """
         Split a text into sentences. Depending on the value of :py:attr:`.keep_newlines`, either :py:meth:`split_sentences`
         or :py:meth:`split_text` will be called.
 
         :param input_text: the input text
+        :param more: override the class' parameter
         :return: a list of sentences (no blank lines)
         """
-        return self.split_sentences(input_text) if self.keep_newlines else self.split_text(input_text)
+        more = more if more is not None else self.more
+        return self._split_sentences(input_text, more) if self.keep_newlines else self._split_text(input_text, more)
 
-    def split_sentences(self, input_text):  # -> List[str]
+    def _split_sentences(self, input_text, more):  # -> List[str]
         """
         Split a text into sentences. Newlines already present in text will be preserved and act as paragraph delimiters.
 
         :param input_text: the input text
+        :param more: split on :; if true
         :return: a list of sentences (no blank lines)
         """
         return sum((
-            self.split_paragraph(p, self.nb_prefixes, self.more)
+            self.split_paragraph(p, self.nb_prefixes, more)
             for p in input_text.split('\n')
             if p and not p.isspace()
         ), [])
 
-    def split_text(self, input_text):  # -> List[str]
+    def _split_text(self, input_text, more):  # -> List[str]
         """
         Split a text into sentences. Newlines already present in text won't be preserved and empty lines act as
         paragraph delimiter.
-
         :param input_text: the input text
+        :param more: split on :; if true
         :return: a list of sentences (no blank lines)
         """
         # equivalent of process_text in moses, but returns a list
