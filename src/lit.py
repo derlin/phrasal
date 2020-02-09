@@ -2,21 +2,9 @@ import base64
 
 import streamlit as st
 import pandas as pd
+from phrasal.pipeline import Pipeline as p, CrawlError
 
 pd.set_option('display.max_colwidth', None)
-from phrasal.tools import *
-
-
-class Pipeline:
-    crawler = JustextCrawler(keep_bad=True)
-    splitter = MocySplitter()
-    filter = PatternSentenceFilter()
-    normalizer = Normalizer()
-
-
-@st.cache
-def get_pipeline():
-    return Pipeline()
 
 
 @st.cache
@@ -75,7 +63,6 @@ Easily extract proper sentences from webpages. Try it out:
 """)
 
 url = st.text_input('url')
-p = get_pipeline()
 
 if url:
     if not url.startswith('http'):

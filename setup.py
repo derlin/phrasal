@@ -17,7 +17,7 @@ setuptools.setup(
     # install all packages found under src/
     package_dir={'': 'src'},
     packages=setuptools.find_packages('src'),
-    package_data={'': ['*.yaml']},  # automatically include yaml files
+    package_data={'': ['*.yaml', '*.txt']},  # automatically include yaml/txt files
 
     # include other files such as html, css, etc
     include_package_data=True,  # read from MANIFEST.in
