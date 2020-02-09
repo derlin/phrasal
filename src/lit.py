@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 
 pd.set_option('display.max_colwidth', None)
-from corona.tools import *
+from phrasal.tools import *
 
 
 class Pipeline:
@@ -32,7 +32,7 @@ def get_df(p, text, normalize, fix_encoding, strip_emojis, more):
     return pd.DataFrame([[p.filter.is_valid(s), s] for s in sentences], columns=['valid', 'text'])
 
 
-def get_table_download_link(df, filename='corona.csv', text='Download CSV file'):
+def get_table_download_link(df, filename='phrasal.csv', text='Download CSV file'):
     """Generates a link allowing the data in a given panda dataframe to be downloaded
     in:  dataframe
     out: href string
@@ -69,7 +69,7 @@ hide_duplicates = st.sidebar.checkbox('Hide duplicates')
 
 # == main content
 st.markdown("""
-# Corona
+# Phrasal
 
 Easily extract proper sentences from webpages. Try it out:
 """)

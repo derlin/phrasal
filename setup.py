@@ -6,7 +6,7 @@ with open(path.join(path.dirname(path.realpath(__file__)), 'requirements.txt'), 
     requirements = [l.strip() for l in f if len(l) > 0 and not l.isspace()]
 
 setuptools.setup(
-    name='corona',
+    name='phrasal',
     version='0.0.1',
     author='Lucy Linder',
     author_email='lucy.derlin@gmail.com',

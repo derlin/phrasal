@@ -1,4 +1,4 @@
-from corona.tools import *
+from phrasal.tools import *
 
 if __name__ == "__main__":
     import argparse

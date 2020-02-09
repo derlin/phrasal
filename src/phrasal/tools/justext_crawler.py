@@ -18,7 +18,7 @@ import logging
 import re
 
 import justext
-from corona.tools.crawler import Crawler, CrawlError, CrawlResults
+from phrasal.tools.crawler import Crawler, CrawlError, CrawlResults
 
 logger = logging.getLogger(__name__)
 
