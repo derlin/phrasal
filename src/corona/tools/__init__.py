@@ -11,7 +11,7 @@ This package contains various implementations of the different pipeline tools.
 """
 
 # crawlers
-from .crawler import Crawler
+from .crawler import Crawler, CrawlResults, CrawlError
 from .justext_crawler import JustextCrawler
 # normalizers
 from .norm_punc import Normalizer, normalize_text

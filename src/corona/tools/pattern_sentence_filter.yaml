@@ -14,12 +14,12 @@
   length:
     max: 1000
 
-- min_letters:
-  descr: not enough letters
-  find:
-    pattern: '\p{L}'
-    count:
-      min: 30
+#- min_letters:
+#  descr: not enough letters
+#  find:
+#    pattern: '\p{L}'
+#    count:
+#      min: 30
 
 - min_words:
   descr: not enough words
