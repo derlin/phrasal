@@ -35,6 +35,10 @@ def get_table_download_link(df, filename='phrasal.csv', text='Download CSV file'
 st.markdown("""
 <style type="text/css">
     tbody tr:hover { background: #f8f8f9; }
+    /* footer:after { content: ' by Derlin'; } */
+    .me { color: #bfc5d3; font-size: .9em; margin-top: 20px; text-align: right; margin-right: 20px; }
+    .me a { color: #808495 !important; }
+    .me a:hover { text-decoration: underline; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -88,3 +92,5 @@ if url:
             st.table(df)
         except CrawlError as e:
             st.error(f'Oops, {e.name}: {e.message}')
+
+st.markdown('<div class="me">Made with ♡ by <a href="https://derlin.ch">Derlin</a></div>', unsafe_allow_html=True)
