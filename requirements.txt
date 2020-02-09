@@ -1,0 +1,6 @@
+requests
+regex
+bs4
+justext
+ftfy
+pyyaml

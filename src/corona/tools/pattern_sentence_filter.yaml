@@ -1,0 +1,237 @@
+#- start:
+#  descr: start character
+#  find:
+#    pattern: ^["']?\p{L}
+#    count:
+#      min: 1
+
+# =================================
+# SENTENCE LENGTH AND CHARACTER SET
+# =================================
+
+- max_length:
+  descr: too long
+  length:
+    max: 1000
+
+- min_letters:
+  descr: not enough letters
+  find:
+    pattern: '\p{L}'
+    count:
+      min: 30
+
+- min_words:
+  descr: not enough words
+  find:
+    pattern: '\p{L}+'
+    count:
+      min: 5
+
+- spaces:
+  descr: too many or not enough spaces
+  find:
+    pattern: ' '
+    ratio:
+      min: 0.065
+      max: 0.25
+
+- non_sg_letters:
+  descr: too much non SG letters
+  find:
+    pattern: '[^\W\däÄöÖüÜa-zA-Z]'
+    count:
+      max: 2
+
+- letter_density:
+  descr: not enough letter density
+  find:
+    pattern: '\p{L}'
+    ratio:
+      min: 0.6
+
+# =================================
+# SYMBOLS AND NON-LETTERS
+# =================================
+
+- has_tabs:
+  # well, shouldn't happen if the text was normalized prior to this
+  descr: tabular data
+  find:
+    pattern: \t|\s{4,}
+    count:
+      max: 0
+
+- bad_chars:
+  descr: strange symbols
+  find:
+    pattern: '[|\[\]]|(>>)|(<<)|…|(---)|©|®|°|§|·|( > )|{|}'
+    count:
+      max: 0
+
+- lonelies:
+  descr: lonely slash or =
+  find:
+    pattern: ' [/=] '
+    count:
+      max: 0
+  examples:
+    - 'I think 4 = 4'
+
+- hashtags:
+  descr: too many hashtags
+  find:
+    pattern: \# ?\p{L}[^ ]+
+    count:
+      max: 1
+  examples:
+    - 'Reply at #things # test'
+    - '#warden #tonightsTHEnight yes bro !! #CHEERS'
+  counterexamples:
+    - 'blabla #hash#tag.'
+
+- too_many_commas:
+  # TODO: better to directly look for lists ('(\p{L}+, ){4}') ?
+  descr: too many commas
+  compare:
+    num: ','
+    denom: '\p{L}+'
+    ratio:
+      max: 0.25
+
+- too_many_symbols:
+  descr: 'too many /)&:'
+  find:
+    pattern: '[/\)&:]'
+    count:
+      max: 7
+
+- many_dots:
+  descr: too many dots
+  find:
+    pattern: '\.'
+    count:
+      max: 5
+  examples:
+    - 'YOU. MUST. LISTEN. TO. ME. NOW.'
+    - 'I dunno... maybe...'
+    - 'no ........ way !'
+
+
+- dashes:
+  descr: too many dashes (before or after a space)
+  find:
+    pattern: '([\u00AF\u2010-\u2015\u2212\uFE58\uFF0D-] )|( [\u00AF\u2010-\u2015\u2212\uFE58\uFF0D-])'
+    count:
+      max: 2
+
+# 3 or 4 ??
+- dashes_slashes:
+  descr: too many dash/slash-separated words in a row
+  find:
+    pattern: '(\p{L}+[\/-]){3,}'
+    count:
+      max: 0
+
+- arrows:
+  descr: too many arrows
+  find:
+    pattern: '[\u2190-\u21FF\u2798-\u27FF\u2B00-\u2B4C\u2900-\u297F><]'
+    count:
+      max: 0
+
+# =================================
+# OTHER SPECIALTIES
+# =================================
+- word_too_long:
+  descr: word too long (30+ chars)
+  find:
+    pattern: '[\p{L}#]{30,}'
+    count:
+      max: 0
+
+- spelled_words:
+  descr: W O R D
+  find:
+    pattern: ' ([\p{L}] ){3,}'
+    count:
+      max: 0
+  examples:
+    - 'you must B E L I E V E me.'
+    - 'span spells S P A N.'
+    - 's p a n means span!!'
+  counterexamples:
+    - 'I ha d S Doctor'
+
+- ellipsis:
+  descr: ellispsis on short sentences.
+  if:
+    length:
+      max: 30
+  find:
+    pattern: '(\.\s?){3}$'
+    count:
+      max: 0
+  examples:
+    - 'read more at ...'
+    - 'read more at... '
+
+- caps_in_a_row:
+  descr: too many truecased words
+  find:
+    pattern: (\p{Lu}\p{Ll}*,? ){5}
+    count:
+      max: 0
+  examples:
+    - 'De Zürcher Schtadtrat Gerold Lauber und de Diräkter vom Schportamt Züri'
+    - 'John Doe, Mike Merk, Sarah and Lee Johnson'
+
+- repeated_letters:
+  descr: repeated letters (more than 8 in a row)
+  find:
+    pattern: ([^?!])\1{8}
+    count:
+      max: 0
+  examples:
+    - 'Jaaaaaaaaaaaaa klar'
+    - '...........'
+
+- non_letters_in_a_row:
+  descr: too many non-letters in a row
+  find:
+    pattern: '[\p{N} :\\.,\/?!-]{16}'
+    count:
+      max: 0
+  examples:
+    - '2014.03.12, ??? !!'
+    - 'prod-324383391-235913 im Stock'
+
+- at_least_one_small_word:
+  descr: at least on small word (6 or less)
+  find:
+    pattern: '(^|\s)\p{L}{1,6}(\s|$)'
+    count:
+      min: 1
+  examples:
+    - 'Mal luege, ob/wänn die nöchst Chance chunt.'
+  counterexamples:
+    - 'gspannt pfarrer Zuletzt natürlich hochzyt Morelia similein Location janedoe richtig chleider eigentlich irgendwie santhia bearbeitet'
+
+- too_many_caps:
+  descr: too many caps (upper/(lower+1)) > 1.5
+  compare:
+    num: '(?:^| |\p{P})\p{Lu}\p{L}*'
+    denom: '(?:^| |\p{P})\p{Ll}\p{L}*'
+    ratio:
+      max: 1.5 # TODO we could even go lower
+
+# =================================
+# WEB
+# =================================
+
+- http:
+  descr: links and HTML garbage
+  find:
+    pattern: '@|(https?:)|(nbsp;)|(a href)'
+    count:
+      max: 0
