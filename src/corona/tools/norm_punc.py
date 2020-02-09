@@ -181,9 +181,13 @@ class Normalizer():
         """Initialize a normalizer. The ``kwargs`` will be passed to :py:meth:`normalize_text` as-is. """
         self.kwargs = kwargs  #: extra options to pass to :py:meth:`normalize_text`
 
-    def normalize(self, text):
+    def normalize(self, text, **kwargs):
         """Call :py:meth:`normalize_text` on ``text`` with the extra :py:attr:`kwargs` options."""
-        return normalize_text(text, **self.kwargs)
+        options = self.kwargs
+        if kwargs:
+            options = dict(**self.kwargs)
+            options.update(kwargs)
+        return normalize_text(text, **options)
 
 
 # ---
