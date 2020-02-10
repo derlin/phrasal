@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from .link_utils import filter_links
-from ..interfaces import ICrawler
+from ..interfaces import ICrawler, CrawlError, CrawlResults
 
 # suppress warning for invalid SSL certificates
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
@@ -46,13 +46,13 @@ class Crawler(ICrawler):
     def __init__(self, joiner=' '):
         self.joiner = joiner  # used to join text chunks
 
-    def crawl(self, url: str, ignore_links=False) -> ICrawler.CrawlResults:
+    def crawl(self, url: str, ignore_links=False) -> CrawlResults:
         """Extract links and text from a URL."""
         soup, content = self.get_soup(url)
         # get links first, as extract_text_blocks is destructive
         links = None if ignore_links else self.extract_links(url, soup)
         text_blocks = self.extract_text_blocks(soup)
-        return self.CrawlResults(
+        return CrawlResults(
             text=self.joiner.join(text_blocks),
             links=links)
 
@@ -71,7 +71,7 @@ class Crawler(ICrawler):
             content = resp.content  # trigger content decoding to catch ContentDecodingError as well
         except Exception as e:
             # here, don't use from_ex so we can trim the error message
-            raise cls.CrawlError(name=e.__class__.__name__, message=str(e)[:50])
+            raise CrawlError(name=e.__class__.__name__, message=str(e)[:50])
 
         # try to avoid encoding issues
         # see https://stackoverflow.com/a/45643551/2667536
@@ -80,11 +80,11 @@ class Crawler(ICrawler):
         # https://github.com/requests/requests/issues/4748
         ctype = resp.headers.get('content-type', '').lower()
         if not ('html' in ctype or 'text/plain' in ctype):
-            raise cls.CrawlError(name='CtypeError', message=f'{url} not HTML (ctype={ctype})')
+            raise CrawlError(name='CtypeError', message=f'{url} not HTML (ctype={ctype})')
 
         # also test the .text, so that we avoid returning content with only unprintable chars, e.g. b'\xef\xbb\xbf'
         if len(content) == 0 or len(resp.text.strip()) == 0:
-            raise cls.CrawlError(name=f'EmptyDocumentError', message='Content is empty.')
+            raise CrawlError(name=f'EmptyDocumentError', message='Content is empty.')
 
         # the resp.encoding is an educated guess about the encoding of the response based on the HTTP headers
         return content, resp.encoding

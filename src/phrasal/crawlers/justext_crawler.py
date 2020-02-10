@@ -18,7 +18,7 @@ import logging
 import re
 
 import justext
-from .crawler import Crawler
+from .crawler import Crawler, CrawlError, CrawlResults
 
 logger = logging.getLogger(__name__)
 
@@ -75,13 +75,13 @@ class JustextCrawler(Crawler):
             paragraphs = justext.justext(decoded, **self.kwargs)
             # paragraphs = justext.justext(content, encoding=soup.original_encoding, **self.kwargs)
             text_blocks = (self._get_text(p) for p in paragraphs if self._paragraph_ok(p))
-            return self.CrawlResults(
+            return CrawlResults(
                 text=self.joiner.join(text_blocks),
                 links=links)
         except Exception as e:
             if 'Document is empty' in str(e):
                 # might happen if the content is not HTML/has no tags
-                raise self.CrawlError(name='JustextError', message=str(e))
+                raise CrawlError(name='JustextError', message=str(e))
             raise e
 
     def _get_text(self, p):
