@@ -2,12 +2,13 @@
 A crawler that uses BeautifulSoup to extract text and links.
 """
 import logging
-from typing import Generator, Tuple, List
+from typing import Generator, Tuple
 
 import requests
 from bs4 import BeautifulSoup
 
 from .link_utils import filter_links
+from ..interfaces import ICrawler
 
 # suppress warning for invalid SSL certificates
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
@@ -22,36 +23,7 @@ GET_TIMEOUT = 60
 logger = logging.getLogger(__name__)
 
 
-class CrawlError(Exception):
-    """This wrapper should be used for any exception that arise during scraping."""
-
-    def __init__(self, name='CrawlError', message=''):
-        super().__init__(f'{name}: {message}')
-        self.name = name
-        self.message = message
-
-    @classmethod
-    def from_ex(cls, e: Exception):
-        """Create an exception using the original exception name and repr"""
-        return cls(name=e.__class__.__name__, message=str(e))
-
-
-class CrawlResults:
-    """Holds the results of a page crawl."""
-
-    def __init__(self, text: str, links: List[str]):
-        self.text: str = text
-        """the clean text found in the page, free of any structural marker such as HTML tags, etc."""
-        self.links: List[str] = links
-        """A list of interesting links found in the page. By interesting, we mean:
-        * no duplicates
-        * different from the current page URL (no anchors !)
-        * if possible, no link pointing to unparseable resources (zip files, images, etc.)
-        The method :py:meth:`swisstext.cmd.link_utils.filter_links` is available to do the filtering. 
-        """
-
-
-class Crawler:
+class Crawler(ICrawler):
     """
     A basic crawler implemented using `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_.
 
@@ -74,13 +46,13 @@ class Crawler:
     def __init__(self, joiner=' '):
         self.joiner = joiner  # used to join text chunks
 
-    def crawl(self, url: str) -> CrawlResults:
+    def crawl(self, url: str, ignore_links=False) -> ICrawler.CrawlResults:
         """Extract links and text from a URL."""
         soup, content = self.get_soup(url)
         # get links first, as extract_text_blocks is destructive
-        links = self.extract_links(url, soup)
+        links = None if ignore_links else self.extract_links(url, soup)
         text_blocks = self.extract_text_blocks(soup)
-        return CrawlResults(
+        return self.CrawlResults(
             text=self.joiner.join(text_blocks),
             links=links)
 
@@ -99,7 +71,7 @@ class Crawler:
             content = resp.content  # trigger content decoding to catch ContentDecodingError as well
         except Exception as e:
             # here, don't use from_ex so we can trim the error message
-            raise CrawlError(name=e.__class__.__name__, message=str(e)[:50])
+            raise cls.CrawlError(name=e.__class__.__name__, message=str(e)[:50])
 
         # try to avoid encoding issues
         # see https://stackoverflow.com/a/45643551/2667536
@@ -108,11 +80,11 @@ class Crawler:
         # https://github.com/requests/requests/issues/4748
         ctype = resp.headers.get('content-type', '').lower()
         if not ('html' in ctype or 'text/plain' in ctype):
-            raise CrawlError(name='CtypeError', message=f'{url} not HTML (ctype={ctype})')
+            raise cls.CrawlError(name='CtypeError', message=f'{url} not HTML (ctype={ctype})')
 
         # also test the .text, so that we avoid returning content with only unprintable chars, e.g. b'\xef\xbb\xbf'
         if len(content) == 0 or len(resp.text.strip()) == 0:
-            raise CrawlError(name=f'EmptyDocumentError', message='Content is empty.')
+            raise cls.CrawlError(name=f'EmptyDocumentError', message='Content is empty.')
 
         # the resp.encoding is an educated guess about the encoding of the response based on the HTTP headers
         return content, resp.encoding

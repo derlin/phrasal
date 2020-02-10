@@ -1,4 +1,4 @@
-from phrasal.tools import *
+from phrasal import *
 
 
 class Pipeline:

@@ -23,13 +23,15 @@ import re
 import sys
 import regex
 
+from ..interfaces import ISplitter
+
 
 # Perl Regex substitutions:
 # * \p{IsPi} => \p{Pi} or \p{Initial_Punctuation}: any kind of opening quote.
 # * \p{IsPf} => \p{Pf} or \p{Final_Punctuation}: any kind of closing quote.
 
 
-class MosesSplitter:
+class MosesSplitter(ISplitter):
     """Python implementation of Moses' split_sentences.perl"""
 
     def __init__(self, lang='de', prefix_file=None, more=True):
@@ -185,7 +187,7 @@ class MosesSplitter:
         return prefixes
 
 
-if __name__ == "__main__":
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()

@@ -2,7 +2,7 @@ import base64
 
 import streamlit as st
 import pandas as pd
-from phrasal.pipeline import Pipeline as p, CrawlError
+from pipeline import Pipeline as p
 
 pd.set_option('display.max_colwidth', None)
 

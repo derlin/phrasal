@@ -20,4 +20,4 @@ EXPOSE $PORT
 # Run the app. CMD is required to run on Heroku (vs ENTRYPOINT)
 # Note: set enableCORS to false so it works on Heroku,
 #       as explained here: https://github.com/streamlit/streamlit/issues/443
-CMD streamlit run src/lit.py  --server.port $PORT --server.enableCORS false
+CMD streamlit run src/showcase/lit.py  --server.port $PORT --server.enableCORS false

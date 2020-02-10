@@ -192,7 +192,7 @@ class Normalizer():
 
 # ---
 
-def cli():
+def main():
     parser = argparse.ArgumentParser(
         description=
         "Normalise text (remove control chars, uncurl quotes, normalise spaces...)"
@@ -209,7 +209,3 @@ def cli():
     except ModuleNotFoundError as e:
         print(e)
         exit(1)
-
-
-if __name__ == '__main__':
-    cli()

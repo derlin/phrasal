@@ -24,6 +24,8 @@ import sys
 import regex
 import logging
 
+from ..interfaces import ISplitter
+
 logger = logging.getLogger(__name__)
 
 # Non-breaking prefix entries
@@ -37,7 +39,7 @@ _NUMERIC_ONLY = 2  #: the prefix applies only when followed by number(s)
 # * \p{IsPf} => \p{Pf} or \p{Final_Punctuation}: any kind of closing quote.
 
 
-class MocySplitter:
+class MocySplitter(ISplitter):
     """
     A splitter largely inspired from Moses' split_sentences.perl. The name is a contraction of Moses and Lucy.
     Most important changes:
@@ -244,7 +246,7 @@ class MocySplitter:
         return prefixes
 
 
-if __name__ == "__main__":
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()

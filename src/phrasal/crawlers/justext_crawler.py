@@ -18,7 +18,7 @@ import logging
 import re
 
 import justext
-from phrasal.tools.crawler import Crawler, CrawlError, CrawlResults
+from .crawler import Crawler
 
 logger = logging.getLogger(__name__)
 
@@ -60,10 +60,10 @@ class JustextCrawler(Crawler):
         self.keep_bad = keep_bad
         logger.debug(self)
 
-    def crawl(self, url: str):
+    def crawl(self, url: str, ignore_links=False):
         soup, content = self.get_soup(url)
         # For links, use bs4 (easier)
-        links = self.extract_links(url, soup)
+        links = None if ignore_links else self.extract_links(url, soup)
 
         try:
             # justext uses the decode/replace strategy by default, so encoding errors shouldn't happen
@@ -75,13 +75,13 @@ class JustextCrawler(Crawler):
             paragraphs = justext.justext(decoded, **self.kwargs)
             # paragraphs = justext.justext(content, encoding=soup.original_encoding, **self.kwargs)
             text_blocks = (self._get_text(p) for p in paragraphs if self._paragraph_ok(p))
-            return CrawlResults(
+            return self.CrawlResults(
                 text=self.joiner.join(text_blocks),
                 links=links)
         except Exception as e:
             if 'Document is empty' in str(e):
                 # might happen if the content is not HTML/has no tags
-                raise CrawlError(name='JustextError', message=str(e))
+                raise self.CrawlError(name='JustextError', message=str(e))
             raise e
 
     def _get_text(self, p):
@@ -100,7 +100,7 @@ class JustextCrawler(Crawler):
         return f'Justext({vars(self)})'.replace("'", '')
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('url', nargs='+')
     parser.add_argument('-joiner', default='\n')

@@ -118,13 +118,15 @@ import yaml
 import logging
 from os import path
 
+from ..interfaces import IFilterer
+
 logger = logging.getLogger(__name__)
 
 
 # TODO: a good way to detect encoding errors is to compare the result of
 # len(re.findall('[^\W\d]')) and len(regex.findall('\p{L}'))
 
-class PatternSentenceFilter:
+class PatternSentenceFilter(IFilterer):
     """
     By default, rules are loaded from the default file ``pattern_sentence_filter.yaml`` in the current directory.
     You can override this by passing a path to the constructor (``rulespath`` argument).
@@ -288,7 +290,7 @@ class Rules:
         return len(self.rules)
 
 
-if __name__ == "__main__":
+def main():
     import argparse
     import sys
 
