@@ -55,7 +55,7 @@ class MocySplitter(ISplitter):
         """
         :param lang: a List[str] of language(s) for nonbreaking_prefix file to load (default: en, de)
         :param prefix_file: path to a custom nonbreaking_prefix file
-        :param more: if set, systematically split on ``:;``
+        :param more: if set, systematically split on ``:;`` by default
         :param keep_newlines: if set, treat newlines as paragraph delimiters that will be preserved.
             If unset, newlines are ignored and empty lines are treated as paragraph delimiters
             (Moses original behavior, see :py:meth:`split`).

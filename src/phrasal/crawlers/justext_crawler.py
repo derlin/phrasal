@@ -60,7 +60,15 @@ class JustextCrawler(Crawler):
         self.keep_bad = keep_bad
         logger.debug(self)
 
-    def crawl(self, url: str, ignore_links=False):
+    def crawl(self, url: str, ignore_links=False, keep_bad=None):
+        """
+        :param url: the URL
+        :param ignore_links: if True, populate CrawlResult.links with all links found in the page
+        :param keep_bad: will override the default set in the constructor
+        :return: the crawl results, with the interesting text found (and potentially the links, see ignore_links)
+        """
+        if keep_bad is None:
+            keep_bad = self.keep_bad
         soup, content = self.get_soup(url)
         # For links, use bs4 (easier)
         links = None if ignore_links else self.extract_links(url, soup)
@@ -74,7 +82,7 @@ class JustextCrawler(Crawler):
             decoded = content.decode(encoding=soup.original_encoding, errors='replace')
             paragraphs = justext.justext(decoded, **self.kwargs)
             # paragraphs = justext.justext(content, encoding=soup.original_encoding, **self.kwargs)
-            text_blocks = (self._get_text(p) for p in paragraphs if self._paragraph_ok(p))
+            text_blocks = (self._get_text(p) for p in paragraphs if keep_bad or 'good' in p.cf_class)
             return CrawlResults(
                 text=self.joiner.join(text_blocks),
                 links=links)
@@ -89,12 +97,6 @@ class JustextCrawler(Crawler):
         # "end of sentence.Start of sentence".
         text = ' '.join(p.text_nodes).replace('\n', ' ')
         return re.sub(' +', ' ', text).strip()
-
-    def _paragraph_ok(self, p):
-        # look at context-free and accept neargood as well
-        # "good" class may be skipped because the cf class is "short" (titles)
-        return self.keep_bad or 'good' in p.cf_class
-        # return self.keep_bad or p.class_type != 'bad'
 
     def __str__(self):
         return f'Justext({vars(self)})'.replace("'", '')

@@ -47,7 +47,7 @@ class ICrawler:
     2. extract links pointing to other pages
     """
 
-    def crawl(self, url: str, ignore_links=False) -> CrawlResults:
+    def crawl(self, url: str, ignore_links=False, **kwargs) -> CrawlResults:
         """[ABSTRACT]
         Should crawl the page and extract the text and the links into a :py:class:`ICrawler.CrawlResults` instance."""
         return CrawlResults.empty()
@@ -60,13 +60,13 @@ class INormalizer:
     The default implementation just return the text as-is.
     """
 
-    def normalize(self, text: str) -> str:
+    def normalize(self, text: str, **kwargs) -> str:
         """This should be overriden. The default implementation just returns the text as-is."""
         return text
 
-    def normalize_all(self, texts: List[str]) -> List[str]:
+    def normalize_all(self, texts: List[str], **kwargs) -> List[str]:
         """Calls normalize on each element of text."""
-        return [self.normalize(t) for t in texts]
+        return [self.normalize(t, **kwargs) for t in texts]
 
 
 class ISplitter:
@@ -75,13 +75,13 @@ class ISplitter:
     The default implementation just splits on the newline character.
     """
 
-    def split(self, text: str) -> List[str]:
+    def split(self, text: str, **kwargs) -> List[str]:
         """This should be overriden. The default implementation just splits on newlines."""
         return text.splitlines()
 
-    def split_all(self, texts: List[str]) -> List[str]:
+    def split_all(self, texts: List[str], **kwargs) -> List[str]:
         """Takes a list of texts and returns a list of sentences (see :py:meth:`split`)."""
-        return [splitted for t in texts for splitted in self.split(t)]
+        return [splitted for t in texts for splitted in self.split(t, **kwargs)]
 
 
 class IFilterer:
@@ -89,10 +89,10 @@ class IFilterer:
     A sentence filter should be able to tell if a given sentence is well-formed (i.e. valid) or not.
     """
 
-    def is_valid(self, sentence: str) -> bool:
+    def is_valid(self, sentence: str, **kwargs) -> bool:
         """This should be overriden. The default implementation just returns true."""
         return True
 
-    def filter(self, sentences: List[str]) -> List[str]:
+    def filter(self, sentences: List[str], **kwargs) -> List[str]:
         """Filter a list of sentences by calling :py:meth:`ISentenceFilter.is_valid` on each element."""
-        return [s for s in sentences if self.is_valid(s)]
+        return [s for s in sentences if self.is_valid(s, **kwargs)]

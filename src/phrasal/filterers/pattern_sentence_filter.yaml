@@ -36,12 +36,12 @@
       min: 0.065
       max: 0.25
 
-- non_sg_letters:
-  descr: too much non SG letters
-  find:
-    pattern: '[^\W\däÄöÖüÜa-zA-Z]'
-    count:
-      max: 2
+#- non_sg_letters:
+#  descr: too much non SG letters
+#  find:
+#    pattern: '[^\W\däÄöÖüÜa-zA-Z]'
+#    count:
+#      max: 2
 
 - letter_density:
   descr: not enough letter density
