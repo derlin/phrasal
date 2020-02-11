@@ -125,3 +125,26 @@ class Crawler(ICrawler):
         """
         links = (a.get('href') for a in soup.find_all('a', href=True))
         return [l for l in filter_links(url, links)]
+
+def main():
+    import argparse, sys
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('url', nargs='+')
+    parser.add_argument('-j', '--joiner', default=' ')
+    parser.add_argument('-l', '--links', default=False, action='store_true',
+                        help='If set, outputs links instead of the text.')
+    args = parser.parse_args()
+
+    crawler = Crawler(joiner=args.joiner)
+
+    for url in args.url:
+        try:
+            res = crawler.crawl(url)
+            print(f'=== from URL {url}', file=sys.stderr)
+            if args.links:
+                print('\n'.join(res.links))
+            else:
+                print(res.text)
+        except Exception as e:
+            print(e)

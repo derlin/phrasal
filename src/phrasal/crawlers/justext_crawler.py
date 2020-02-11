@@ -13,7 +13,6 @@ To get a feel, try the `online demo of the original JustText <http://nlp.fi.muni
       :py:class:`~swisstext.cmd.scraping.interface.ICrawler.CrawlError`.
 
 """
-import argparse
 import logging
 import re
 
@@ -103,19 +102,20 @@ class JustextCrawler(Crawler):
 
 
 def main():
+    import argparse, sys
     parser = argparse.ArgumentParser()
     parser.add_argument('url', nargs='+')
-    parser.add_argument('-joiner', default='\n')
-    parser.add_argument('-good', default=False, action='store_true', help='Keep only good|neargood sentences.')
+    parser.add_argument('-j', '--joiner', default='\n')
+    parser.add_argument('-b', '--keep-bad', default=False, action='store_true', help='Return all found sentences (vs "good" only).')
     args = parser.parse_args()
 
-    jt = JustextCrawler(joiner=args.joiner, keep_bad=not args.good)
+    jt = JustextCrawler(joiner=args.joiner, keep_bad=args.everything)
 
     for url in args.url:
         try:
             res = jt.crawl(url)
-            print(f'==== {url}')
+            print(f'=== from URL {url}', file=sys.stderr)
+            logging.info(f'results {url}')
             print(res.text)
         except Exception as e:
             print(e)
-            # raise e

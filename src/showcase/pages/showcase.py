@@ -51,8 +51,14 @@ def render():
     st.markdown("""
     # Phrasal
     
-    Easily extract proper sentences from webpages. Try it out:
-    """)
+    A bunch of tools to easily extract proper sentences from webpages. 
+    
+    <p style="font-size: .9em">By proper sentences, I mean sentences which can actually be of value from an NLP perspective, so no title, 
+    no article reference, no "<i> YEAAHHH cool bro :==) ... </i>" and the like. Just proper, cleaned, sentences.
+    And not limited to English !</p>
+    
+    Give it a spin!
+    """, unsafe_allow_html=True)
 
     url = st.text_input('url')
 

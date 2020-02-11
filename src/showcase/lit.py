@@ -1,7 +1,12 @@
 import os
 
 import streamlit as st
-from pages import showcase, customizer
+
+# do not use the syntax from ... import ... because it breaks streamlit hot reloading
+# more about the issue: https://github.com/streamlit/streamlit/issues/358
+import pages.showcase
+import pages.customizer
+import pages.about
 
 st.markdown('<a href="https://github.com/derlin/phrasal" target="_blank">View on GitHub</a>', unsafe_allow_html=True)
 
@@ -13,14 +18,13 @@ ABOUT_PAGE = 'About'
 
 page = st.sidebar.selectbox("Pages", [SHOWCASE_PAGE, CUSTOMIZER_PAGE, ABOUT_PAGE])
 if page == ABOUT_PAGE:
-    with open(os.path.join(os.path.realpath(os.path.dirname(__file__)), '..', '..', 'README.md')) as f:
-        st.markdown(f.read())
+   pages.about.render()
 
 elif page == SHOWCASE_PAGE:
-    showcase.render()
+    pages.showcase.render()
 
 elif page == CUSTOMIZER_PAGE:
-    customizer.render()
+    pages.customizer.render()
 
 # == general "footer"
 st.markdown("""

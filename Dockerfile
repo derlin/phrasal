@@ -8,6 +8,7 @@ COPY setup.py setup.cfg requirements.txt ./
 RUN pip install -r requirements.txt
 
 # install module
+COPY README.md ./
 COPY src ./src
 RUN pip install .[showcase]
 
