@@ -9,11 +9,11 @@ Phrasal is a library of tools to help gather meaningful, proper sentences from w
 ### Why was it developed ?
 
 I have been working on a project lately, called [SwissText](https://github.com/derlin/swisstext) that tries to find and gather Swiss German sentences online.
-To do so, I had to build upon existing tools and develop some of my own. I figured that It would maybe be useful in other context, hence this repo which is a stripped down version of some of the SwissText modules.
+To do so, I had to build upon existing tools and develop some of my own. I figured that it would maybe be useful in other contexts, hence this repo which is a stripped-down version of some of the SwissText modules.
 
 ### How does it work ?
 
-This repo contains implementations of four types of tools, that constitute together a pipeline:
+This repo contains implementations of four types of tools, which constitute together a pipeline:
 
 1. *crawler*: extract (main) text from webpages;
 2. *normalizer*: normalize the raw text, including the encoding, quotes, spaces, etc.;
@@ -36,7 +36,7 @@ For each step, I propose one or more implementations.
 **Splitters**
 
 * `phrasal.MosesSplitter`: Moses splitter `split-sentences.perl` completely rewritten in Python. It thus perfectly mimics the behavior, while being 5x faster than calling perl from Python (approach taken by `MosesTokenizer` for example);
-* `phrasal.MocySplitter`: a improvement (at least in my opinion) upon `MosesSplitter`. The biggest difference is that it also deals with sentences starting with a lowercase.
+* `phrasal.MocySplitter`: an improvement (at least in my opinion) upon `MosesSplitter`. The biggest difference is that it also deals with sentences starting with a lowercase.
 
 **Filterers**
 
@@ -58,9 +58,9 @@ from phrasal import *
 
 Done.
 
-### From the commandline
+### From the command line
 
-Each tool contains a commandline interface with different arguments. Discover it by typing:
+Each tool contains a command line interface with different arguments. Discover it by typing:
 ```bash
 python -m phrasal --help
 ```
@@ -68,7 +68,7 @@ python -m phrasal --help
 Here is an example:
 ```bash
 python -m phrasal --help
-Call one of the tools from the commandline. Usage: 
+Call one of the tools from the command line. Usage: 
    classname [other arguments specific to classname]|[-h]
 
 Allowed classname arguments:
@@ -86,4 +86,5 @@ Lorem ipsum is placeholder text commonly used in the graphic, print, and publish
 
 ### Use just one tool
 
-Each tool is more or less independent. The only thing that may cause problem is that I defined *interfaces* to ease the development. So to "export" one tool, just remove the `from ..interface` import and the interface name in the class definition and you should be good to go. 
+Each tool is more or less independent. You may want to simplify the code a bit (e.g. remove the interface inheritance, transform classes into static scripts, I don't know), but I hope the source code is self-explained. 
+The only thing I would enjoy would be for you to notify/cite me one way or another, so I know my efforts were not totally pointless :)

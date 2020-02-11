@@ -4,4 +4,3 @@ bs4
 justext
 ftfy
 pyyaml
-streamlit

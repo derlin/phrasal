@@ -21,7 +21,7 @@ setuptools.setup(
 
     # include other files such as html, css, etc
     include_package_data=True,  # read from MANIFEST.in
-    zip_safe=False,  # trust me
+    zip_safe=True,
 
     classifiers=[
         'Programming Language :: Python :: 3',
@@ -34,5 +34,9 @@ setuptools.setup(
     # tests_require=['pytest'],
 
     # regular dependencies
-    install_requires=requirements
+    install_requires=requirements,
+    # extra dependencies
+    extras_require={
+        'showcase': ['streamlit']
+    }
 )

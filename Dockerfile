@@ -1,6 +1,7 @@
 FROM python:3.7
 
 WORKDIR /app
+RUN pip install --upgrade pip
 
 # copy module sources and setup files
 COPY setup.py setup.cfg requirements.txt ./
@@ -8,7 +9,7 @@ RUN pip install -r requirements.txt
 
 # install module
 COPY src ./src
-RUN python setup.py install
+RUN pip install .[showcase]
 
 # set gunicorn run mode
 # $PORT is set by Heroku or the --env-vars argument, set default to 80
