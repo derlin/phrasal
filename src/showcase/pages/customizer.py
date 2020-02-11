@@ -159,7 +159,7 @@ def render():
             columns=['valid', 'text'])
 
         st.markdown(f"""
-        `{len(text)}` characters split into `{len(df)}` "chunks" (`{len(df[df.valid])}`).""")
+        `{len(text)}` characters split into `{len(df)}` "chunks" (`{len(df[df.valid])}` "sentences").""")
 
         valid_only = st.checkbox('Show valid only', value=False)
         if valid_only:
