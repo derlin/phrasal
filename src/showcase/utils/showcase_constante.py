@@ -6,3 +6,5 @@ class Pipeline:
     splitter = MocySplitter()
     filter = PatternSentenceFilter()
     normalizer = Normalizer()
+
+
