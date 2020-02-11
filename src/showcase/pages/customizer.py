@@ -49,7 +49,7 @@ def get_code(mode, pipeline, pipeline_args):
     # generate the input code
     inpt = {
         MODE_URL: "url = '<YOUR URL>'\ntext = crawler.crawl(url).text",
-        MODE_FILE: "with open('<YOUR FILE'>) as f:\n    text = [l.strip() for l in f if len(l.strip())]",
+        MODE_FILE: "with open('<YOUR FILE>') as f:\n    text = f.read()",
         MODE_TEXT: "text = '<YOUR TEXT>'"
     }[mode]
     # generate the pipeline use
@@ -58,12 +58,12 @@ def get_code(mode, pipeline, pipeline_args):
         code.append('text = normalizer.normalize(text)')
     code.append('chunks = ' + ('splitter.split(text)' if not is_interface['splitters'] else 'text.splitlines()'))
     if not is_interface['filterers']:
-        code.append('sentences = [l for l in chunks if filterer.split(l)]')
+        code.append('sentences = [l for l in chunks if filterer.is_valid(l)]')
     code = '\n'.join(code)
 
     return re.sub(' *\\|', '', f"""
-    |# import phrasal
-    |from phrasal import *
+    |# import the library
+    |import phrasal
     |
     |# instantiate the tools
     |{vars}
