@@ -13,7 +13,7 @@ ABOUT_PAGE = 'About'
 
 page = st.sidebar.selectbox("Pages", [SHOWCASE_PAGE, CUSTOMIZER_PAGE, ABOUT_PAGE])
 if page == ABOUT_PAGE:
-    with open(os.path.join(os.path.realpath(os.path.dirname(__file__)), 'README.md')) as f:
+    with open(os.path.join(os.path.realpath(os.path.dirname(__file__)), '..', '..', 'README.md')) as f:
         st.markdown(f.read())
 
 elif page == SHOWCASE_PAGE:
