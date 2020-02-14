@@ -150,7 +150,7 @@ def render():
     st.code(get_code(mode, pipeline, pipeline_args), language='python')
 
     # process
-    if text:
+    if text is not None:
         st.subheader('Code output')
         text = pipeline['normalizers'].normalize(text, **pipeline_args['normalizers'])
         splits = pipeline['splitters'].split(text, **pipeline_args['splitters'])
