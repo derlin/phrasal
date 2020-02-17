@@ -13,7 +13,9 @@ _build
 
 dist
 *.egg-info
+.eggs
 *-test.py
+.tox
 *.log
 logs
 
