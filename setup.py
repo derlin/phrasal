@@ -26,8 +26,8 @@ setuptools.setup(
     ],
 
     # for testing
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-check'],
+    # setup_requires=['pytest-runner'],
+    # tests_require=['pytest', 'pytest-check'],
 
     # regular dependencies
     install_requires=[

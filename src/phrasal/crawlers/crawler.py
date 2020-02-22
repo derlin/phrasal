@@ -2,12 +2,12 @@
 A crawler that uses BeautifulSoup to extract text and links.
 """
 import logging
-from typing import Generator, Tuple
+from typing import Generator, Tuple, List
 
 import requests
 from bs4 import BeautifulSoup
 
-from .link_utils import filter_links
+from .link_utils import process_links
 from ..interfaces import ICrawler, CrawlError, CrawlResults
 
 # suppress warning for invalid SSL certificates
@@ -46,7 +46,7 @@ class Crawler(ICrawler):
     def __init__(self, joiner=' '):
         self.joiner = joiner  # used to join text chunks
 
-    def crawl(self, url: str, ignore_links=False) -> CrawlResults:
+    def crawl(self, url: str, ignore_links=False, **kwargs) -> CrawlResults:
         """Extract links and text from a URL."""
         soup, content = self.get_soup(url)
         # get links first, as extract_text_blocks is destructive
@@ -118,13 +118,13 @@ class Crawler(ICrawler):
         return soup.stripped_strings
 
     @classmethod
-    def extract_links(cls, url, soup):
+    def extract_links(cls, url, soup) -> List[str]:
         """
         Get all links from a soup (a href only).
         Note that links will be resolved (relative to absolute) and filtered (non-HTML removed).
         """
         links = (a.get('href') for a in soup.find_all('a', href=True))
-        return [l for l in filter_links(url, links)]
+        return [l for l in process_links(url, links)]
 
 def main():
     import argparse, sys

@@ -6,6 +6,7 @@ import streamlit as st
 # more about the issue: https://github.com/streamlit/streamlit/issues/358
 import pages.showcase
 import pages.customizer
+import pages.links
 import pages.about
 
 st.markdown('<a href="https://github.com/derlin/phrasal" target="_blank">View on GitHub</a>', unsafe_allow_html=True)
@@ -14,9 +15,10 @@ st.markdown('<a href="https://github.com/derlin/phrasal" target="_blank">View on
 
 CUSTOMIZER_PAGE = 'Live Customizer'
 SHOWCASE_PAGE = 'Showcase'
+LINKS_PAGE = 'Links Extractor'
 ABOUT_PAGE = 'About'
 
-page = st.sidebar.selectbox("Pages", [SHOWCASE_PAGE, CUSTOMIZER_PAGE, ABOUT_PAGE])
+page = st.sidebar.selectbox("Pages", [SHOWCASE_PAGE, CUSTOMIZER_PAGE, LINKS_PAGE, ABOUT_PAGE])
 if page == ABOUT_PAGE:
    pages.about.render()
 
@@ -25,6 +27,9 @@ elif page == SHOWCASE_PAGE:
 
 elif page == CUSTOMIZER_PAGE:
     pages.customizer.render()
+
+elif page == LINKS_PAGE:
+    pages.links.render()
 
 # == general "footer"
 st.markdown("""

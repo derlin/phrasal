@@ -61,6 +61,11 @@ A filterer based on a list of simple rules a proper sentence should respect, suc
 What is *awesome* ? The rules are expressed in a (homemade) YAML-based syntax and are highly customizable. If you don't like the behavior, have a look at `pattern_sentence_filter.yaml` and try writing your own set of rules !
 
 
+**link_utils**
+
+The `phrasal.link_utils` module is a simple utility to process href links found on a page. It will resolve relative links
+(given a base URL), remove duplicates, strip anchors and exclude non-HTTP/HTTPs links.
+
 ## How to use
 
 Install the library using:
@@ -135,5 +140,8 @@ This work is licensed under Apache 2.0, so you can basically do anything with it
 * :octopus::octopus::octopus::octopus::octopus::octopus::octopus::octopus: (I just love octopuses)
 * [Personal website](https://derlin.ch)
 
+## TODO
+
+* twitter is now fully powered by JS, so text can't be accessed anymore... Find a way to circumvent that / use the old version?
 
 TODO: add some usecases, such as finding links, cleaning a text file, etc. add language support information 
