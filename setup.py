@@ -37,6 +37,7 @@ setuptools.setup(
         'justext==2.2.0',
         'ftfy>=5.6',
         'pyyaml>=5.3',
+        'get-html',
     ],
     # extra dependencies
     extras_require={

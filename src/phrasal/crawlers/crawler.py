@@ -1,17 +1,22 @@
 """
 A crawler that uses BeautifulSoup to extract text and links.
+Note that to get the HTML, it actually uses get-html.
 """
+from get_html.env_defined_get import do_get
+
 import logging
+import threading
 from typing import Generator, Tuple, List
 
-import requests
 from bs4 import BeautifulSoup
 
 from .link_utils import process_links
 from ..interfaces import ICrawler, CrawlError, CrawlResults
 
 # suppress warning for invalid SSL certificates
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 #: Headers passed with each request
 DEFAULT_HEADERS = {
@@ -67,8 +72,7 @@ class Crawler(ICrawler):
         """
         try:
             # ignore SSL certificates
-            resp = requests.get(url, verify=False, stream=True, headers=DEFAULT_HEADERS, timeout=GET_TIMEOUT)
-            content = resp.content  # trigger content decoding to catch ContentDecodingError as well
+            resp = do_get(url)
         except Exception as e:
             # here, don't use from_ex so we can trim the error message
             raise CrawlError(name=e.__class__.__name__, message=str(e)[:50])
@@ -83,11 +87,11 @@ class Crawler(ICrawler):
             raise CrawlError(name='CtypeError', message=f'{url} not HTML (ctype={ctype})')
 
         # also test the .text, so that we avoid returning content with only unprintable chars, e.g. b'\xef\xbb\xbf'
-        if len(content) == 0 or len(resp.text.strip()) == 0:
+        if len(resp.content) == 0 or len(resp.text.strip()) == 0:
             raise CrawlError(name=f'EmptyDocumentError', message='Content is empty.')
 
         # the resp.encoding is an educated guess about the encoding of the response based on the HTTP headers
-        return content, resp.encoding
+        return resp.content, resp.encoding
 
     @classmethod
     def get_soup(cls, url) -> Tuple[BeautifulSoup, bytes]:
@@ -125,6 +129,7 @@ class Crawler(ICrawler):
         """
         links = (a.get('href') for a in soup.find_all('a', href=True))
         return [l for l in process_links(url, links)]
+
 
 def main():
     import argparse, sys
