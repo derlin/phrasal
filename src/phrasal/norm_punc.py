@@ -95,7 +95,7 @@ normalization_patterns = [
         # normalize space
         (REG, spaces_pattern, ' '),
         # normalize spaces
-        (REG, '(\d) \%', r'\1%'),
+        (REG, r'(\d) \%', r'\1%'),
         # the following is a very bad idea because of emojis
         # (STR, '(', ' ('),
         # (STR, ')', ') '),
@@ -104,12 +104,12 @@ normalization_patterns = [
         # (STR, ' )', ')'),
         # (STR, ' :', ':'),
         # (STR, ' ;', ';'),
-        # normalize spaces around, trying to avoid emojis
-        (REG, r'([\w"\']) ?(:|;) ?([\w"\'\n]|$)', r'\1\2 \3'),
+        # normalize spaces around, trying to avoid emojis and numbers, e.g. (arXiv:133)
+        (REG, r'([\w"\']) ?(:|;) ?([^\W\d]|["\'\n]|$)', r'\1\2 \3'),
         (STR, ' , ', ', '),
         (STR, ' .', '.'),  # TODO: useful ?
-        (REG, '\( +(\w|\d)', r'(\1'),
-        (REG, '(\w|\d) +\)', r'\1)'),
+        (REG, r'\( +(\w|\d)', r'(\1'),
+        (REG, r'(\w|\d) +\)', r'\1)'),
     ]]
 
 

@@ -33,7 +33,16 @@ test_cases = [
     ("Sof\u00ADt h\u00ADy\u00ADp\u00ADhens.\u00AD\u00AD",
      "Soft hyphens."),
     ("\u00AF.\u2010.\u2011.\u2012.\u2013.\u2015.\u2212.\uFE58.\uFE63.\uFF0D.\u1806.",
-     "-." * 11)
+     "-." * 11),
+    # colons and semi colons
+    ("see article arXiv:1912.00159",
+     "see article arXiv:1912.00159"),
+    ('In chapter 1:1;"quote" ;quote',
+     'In chapter 1:1; "quote"; quote'),
+    ('I say :yes! .',
+     'I say: yes!.'),
+    ('Emoji :) ;=(',
+     'Emoji :) ;=('),
 ]
 
 
@@ -60,4 +69,3 @@ def test_normalizer_single(raw, expected):
 def test_normalizer_shuffled(raw, expected):
     res = norm_punc.normalize_text(str(raw), fix_encoding=False, strip_emojis=False)
     assert res == str(expected)
-
