@@ -5,13 +5,13 @@ from phrasal.interfaces import *
 class CustomizerConstants:
 
     tools = dict(
-        crawlers=dict(
+        converters=dict(
             impl={
-                'JustextCrawler': JustextCrawler(),  # keep_bad=True
-                'Crawler': Crawler()
+                'JustextConverter': JustextConverter(),  # keep_bad=True
+                'BsConverter': BsConverter()
             },
             options={
-                'JustextCrawler': [('keep_bad', 'keep everything', False)]
+                'JustextConverter': [('keep_bad', 'keep everything', False)]
             }
         ),
         normalizers=dict(
@@ -29,7 +29,7 @@ class CustomizerConstants:
                 'None': ISplitter(),
             },
             options={
-                'MocySplitter': [('more', 'break on :;', True)]
+                'MocySplitter': [('more', 'break on :;', True), ('keep_newlines', 'preserve new lines', True)]
             }
         ),
         filterers=dict(

@@ -4,53 +4,17 @@ This makes it easy to test new ways or to tune one aspect of the scraper while k
 
 See the :py:mod:`swisstext.cmd.scraping.tools` module for implementations.
 """
-from typing import List
+from typing import List, Union
 
 
-class CrawlError(Exception):
-    """This wrapper should be used for any exception that arise during scraping."""
-
-    def __init__(self, name='CrawlError', message=''):
-        super().__init__(f'{name}: {message}')
-        self.name = name
-        self.message = message
-
-    @classmethod
-    def from_ex(cls, e: Exception):
-        """Create an exception using the original exception name and repr"""
-        return cls(name=e.__class__.__name__, message=str(e))
-
-
-class CrawlResults:
-    """Holds the results of a page crawl."""
-
-    def __init__(self, text: str, links: List[str]):
-        self.text: str = text
-        """the clean text found in the page, free of any structural marker such as HTML tags, etc."""
-        self.links: List[str] = links
-        """A list of interesting links found in the page. By interesting, we mean:
-        * no duplicates
-        * different from the current page URL (no anchors !)
-        * if possible, no link pointing to unparseable resources (zip files, images, etc.)
-        The method :py:meth:`swisstext.cmd.link_utils.filter_links` is available to do the filtering. 
-        """
-
-    @classmethod
-    def empty(cls):
-        return cls(text='', links=[])
-
-
-class ICrawler:
+class IHtmlConverter:
     """
-    [ABSTRACT] This tool is in charge of crawling a page. More specifically, it should be able to:
-    1. extract the text of the page (stripped of any HTML or other structural clue),
-    2. extract links pointing to other pages
+    [ABSTRACT] This tool is in charge of extracting text from HTML.
     """
 
-    def crawl(self, url: str, ignore_links=False, **kwargs) -> CrawlResults:
-        """[ABSTRACT]
-        Should crawl the page and extract the text and the links into a :py:class:`ICrawler.CrawlResults` instance."""
-        return CrawlResults.empty()
+    def to_text(self, html: Union[str, bytes], encoding=None, **kwargs) -> str:
+        """[ABSTRACT] Should extract the text from HTML."""
+        return ''
 
 
 class INormalizer:

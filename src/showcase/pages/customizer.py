@@ -5,6 +5,8 @@ import streamlit as st
 import pandas as pd
 import os, sys, re
 
+from get_html.env_defined_get import do_get
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 from utils.customizer_constants import CustomizerConstants as cc
 from utils.session_state import get as get_state
@@ -15,8 +17,10 @@ MODE_FILE = 'File'
 
 
 @st.cache()
-def get_text_from_url(url, crawler, kargs):
-    return crawler.crawl(url, ignore_links=True, **kargs).text
+def get_text_from_url(url, converter, kwargs):
+    resp = do_get(url)
+    print(converter, kwargs)
+    return converter.to_text(resp.content, encoding=resp.encoding, **kwargs)
 
 
 def get_text_download_link(df, filename='phrasal.txt', text='Download Text file'):
@@ -48,7 +52,7 @@ def get_code(mode, pipeline, pipeline_args):
     vars = '\n'.join(vars)
     # generate the input code
     inpt = {
-        MODE_URL: "url = '<YOUR URL>'\ntext = crawler.crawl(url).text",
+        MODE_URL: "\nimport requests\nresp = requests.get('<YOUR URL>')\ntext = converter.to_text(resp.content, encoding=resp.encoding)",
         MODE_FILE: "with open('<YOUR FILE>') as f:\n    text = f.read()",
         MODE_TEXT: "text = '<YOUR TEXT>'"
     }[mode]
@@ -100,7 +104,7 @@ def render():
 
     for key, current in cc.tools.items():
         # BUG it looses state ...
-        if mode != MODE_URL and key == 'crawlers':
+        if mode != MODE_URL and key == 'converters':
             continue
 
         st.sidebar.markdown(f'**{key[:-1]}**')
@@ -129,7 +133,7 @@ def render():
     if mode == MODE_URL:
         url = st.text_input('Enter a valid URL:')
         if url:
-            text = get_text_from_url(url, pipeline['crawlers'], pipeline_args['crawlers'])
+            text = get_text_from_url(url, pipeline['converters'], pipeline_args['converters'])
 
     elif mode == MODE_FILE:
         file = st.file_uploader('Select a file:', type="txt")

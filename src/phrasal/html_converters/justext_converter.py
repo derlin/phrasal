@@ -1,30 +1,29 @@
 """
-This module contains a subclass of :py:class:`~.bs_crawler.BsCrawler`
-relying on `JusText <https://github.com/miso-belica/jusText>`_ for text extraction.
+This module relies on `JusText <https://github.com/miso-belica/jusText>`_ for text extraction.
 
-It seems to work better than :py:class:`~.bs_crawler.BsCrawler` or :py:class:`~.bs_crawler.CleverBsCrawler`.
 To get a feel, try the `online demo of the original JustText <http://nlp.fi.muni.cz/projects/justext/>`_.
 
 .. note::
 
     * usually, jusText uses ``''`` (empty string) to join text nodes inside a paragraph, thus making things like
       "*One sentence.Second sentence*" likely. Here, we always use a space to join, then normalize the spaces.
-    * justext will throw an error on an empty document content, which is wrapped inside a
-      :py:class:`~swisstext.cmd.scraping.interface.ICrawler.CrawlError`.
+    * justext will throw an error on an empty document content.
 
 """
 import logging
 import re
+from typing import Union
 
+from bs4 import UnicodeDammit
 import justext
-from .crawler import Crawler, CrawlError, CrawlResults
+from ..interfaces import IHtmlConverter
 
 logger = logging.getLogger(__name__)
 
 
-class JustextCrawler(Crawler):
+class JustextConverter(IHtmlConverter):
     """
-    A :py:class:`~.bs_crawler.BsCrawler` that relies on
+    An HTML converter that relies on
     `JusText <https://github.com/miso-belica/jusText>`_ to cleverly extract meaningful text from webpages.
     """
 
@@ -44,7 +43,7 @@ class JustextCrawler(Crawler):
         :param stopwords_high: idem
         :param kwargs: unused
         """
-        super().__init__(joiner=joiner)
+        self.joiner = joiner
 
         if stoplist is not None:
             with open(stoplist) as f:
@@ -59,18 +58,11 @@ class JustextCrawler(Crawler):
         self.keep_bad = keep_bad
         logger.debug(self)
 
-    def crawl(self, url: str, ignore_links=False, keep_bad=None):
-        """
-        :param url: the URL
-        :param ignore_links: if True, populate CrawlResult.links with all links found in the page
-        :param keep_bad: will override the default set in the constructor
-        :return: the crawl results, with the interesting text found (and potentially the links, see ignore_links)
-        """
+    def to_text(self, html: Union[str, bytes], joiner=None, keep_bad=None, **kwargs) -> str:
         if keep_bad is None:
             keep_bad = self.keep_bad
-        soup, content = self.get_soup(url)
-        # For links, use bs4 (easier)
-        links = None if ignore_links else self.extract_links(url, soup)
+        if joiner is None:
+            joiner = self.joiner
 
         try:
             # justext uses the decode/replace strategy by default, so encoding errors shouldn't happen
@@ -78,18 +70,20 @@ class JustextCrawler(Crawler):
             # but not if I do the decoding here... maybe the encoding parameter ? Problematic URLs examples
             # - http://www.triumphowners.ch/index.php?page=Thread%3D654%3D13
             # - https://angerweit.tikon.ch/lieder/lied.php?src=folk-de%2Fsimeli
-            decoded = content.decode(encoding=soup.original_encoding, errors='replace')
-            paragraphs = justext.justext(decoded, **self.kwargs)
+            if isinstance(html, bytes):
+                dammit = UnicodeDammit(html, [None], is_html=True) # way more precise than requests
+                if 'encoding' in kwargs and dammit.original_encoding != kwargs['encoding']:
+                    logger.debug(f"encoding: declared={kwargs['encoding']}, dammit={dammit.original_encoding}")
+                html = html.decode(encoding=dammit.original_encoding, errors='replace')
+            paragraphs = justext.justext(html, **self.kwargs)
             # paragraphs = justext.justext(content, encoding=soup.original_encoding, **self.kwargs)
             text_blocks = (self._get_text(p) for p in paragraphs if keep_bad or 'good' in p.cf_class)
-            return CrawlResults(
-                text=self.joiner.join(text_blocks),
-                links=links)
+            return joiner.join(text_blocks)
         except Exception as e:
             if 'Document is empty' in str(e):
-                # might happen if the content is not HTML/has no tags
-                raise CrawlError(name='JustextError', message=str(e))
-            raise e
+                return ''  # Document is empty
+            else:
+                raise e
 
     def _get_text(self, p):
         # mmhh... In justext, they join on '', such that we often have things like:
@@ -98,24 +92,31 @@ class JustextCrawler(Crawler):
         return re.sub(' +', ' ', text).strip()
 
     def __str__(self):
-        return f'Justext({vars(self)})'.replace("'", '')
+        return f'{self.__class__.__name__}({vars(self)})'.replace("'", '')
 
 
 def main():
     import argparse, sys
+    import requests
     parser = argparse.ArgumentParser()
-    parser.add_argument('url', nargs='+')
+    parser.add_argument('-u', '--url', nargs='+', default=[])
+    parser.add_argument('-f', '--file', type=argparse.FileType('r'), default=None)
     parser.add_argument('-j', '--joiner', default='\n')
-    parser.add_argument('-b', '--keep-bad', default=False, action='store_true', help='Return all found sentences (vs "good" only).')
+    parser.add_argument('-b', '--keep-bad', default=False, action='store_true',
+                        help='Return all found sentences (vs "good" only).')
     args = parser.parse_args()
 
-    jt = JustextCrawler(joiner=args.joiner, keep_bad=args.everything)
+    jt = JustextConverter(joiner=args.joiner, keep_bad=args.keep_bad)
+
+    if args.file:
+        print(f'=== from TEXT', file=sys.stderr)
+        print(jt.to_text(args.file.read()))
 
     for url in args.url:
         try:
-            res = jt.crawl(url)
+            response = requests.get(url)
+            text = jt.to_text(response.content)
             print(f'=== from URL {url}', file=sys.stderr)
-            logging.info(f'results {url}')
-            print(res.text)
+            print(text)
         except Exception as e:
             print(e)

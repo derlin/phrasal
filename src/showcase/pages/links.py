@@ -2,8 +2,7 @@ import base64
 
 import streamlit as st
 import pandas as pd
-from utils.customizer_constants import CustomizerConstants as cc
-from phrasal import link_utils, CrawlError
+from phrasal import extract_links, link_utils
 
 pd.set_option('display.max_colwidth', None)
 
@@ -39,10 +38,7 @@ def render():
     
     url = "<URL>"
     
-    crawler = Crawler()
-    results = crawler.crawl(url, ignore_links=False)
-    
-    all_links = results.links
+    all_links = phrasal.extract_links(url)
     non_media_links = [l for l in all_links if not phrasal.link_utils.is_media_link(l)]
     ```
     
@@ -50,14 +46,13 @@ def render():
     """, unsafe_allow_html=True)
 
     url = st.text_input('url')
-    cr = cc.tools['crawlers']['impl']['Crawler']
 
     if url:
         if not url.startswith('http'):
             st.error(f'{url}: not a valid URL')
         else:
             try:
-                links = fetch_links(cr, url)
+                links = extract_links(url)
                 df = pd.DataFrame([
                     [l, link_utils.is_media_link(l)] for l in links
                 ], columns=['link', 'is_media'])
@@ -72,5 +67,5 @@ def render():
                 st.markdown(f'<p style="text-align: right">{get_table_download_link(df)} ({len(df)} lines)</p>',
                             unsafe_allow_html=True)
                 st.table(df)
-            except CrawlError as e:
-                st.error(f'Oops, {e.name}: {e.message}')
+            except Exception as e:
+                st.error(f'{e.__class__.__name__}: {str(e)}')

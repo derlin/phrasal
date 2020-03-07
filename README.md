@@ -8,7 +8,6 @@ Phrasal is a library of tools to help gather meaningful, proper sentences from w
 
 Well, at least if used together. Each tool has a value of its own. 
 For example, the `Normalizer` (my favorite!) is very useful for NLP, when you have a crappy text corpus you need to clean.
-The `Crawler` is good when you need the raw text of a web page, properly decoded in UTF-8.
 The `MocySplitter` is a nice alternative to Moses when you need to cleverly split a stream of text into sentences, one per line. 
 Etc.
 
@@ -22,7 +21,7 @@ While they were initially for Swiss German, I figured that it would maybe be use
 
 This repo contains implementations of four types of tools, which constitute together a pipeline:
 
-1. *crawler*: extract (main) text from webpages;
+1. *converter*: extract (main) text from raw HTML;
 2. *normalizer*: normalize the raw text, including the encoding, quotes, spaces, etc.;
 3. *splitter*: split the text into chunks (potential sentences);
 4. *filterer*: filter chunks to keep only "proper" sentences.
@@ -31,15 +30,17 @@ For each step, I propose one or more implementations.
 
 ## Tools available
 
-**Crawlers**
+**HtmlConverters**
 
-* `phrasal.Crawler` \
-A "crawler" built upon `BeautifulSoup` that exact text found on the page. 
+* `phrasal.BsConverter` \
+A converter built upon `BeautifulSoup` that exact text found on the HTML. 
+Text from code blocks, scripts or styles is ignored.
 It deals cleverly with encodings and always delivers text in UTF-8.
-As a bonus, it is able to find, resolve (i.e. make absolute) and return all "text links" (links pointing to other web pages with potential text, so no images, scripts or the like).
 
-* `phrasal.JustextCrawler` \
-a crawler that in addition to what the basic `Crawler` does, uses `justext` to remove boilerplate content and preserve mainly text containing full sentences.
+
+* `phrasal.JustextConverter` \
+a converter based on [`justext`](https://pypi.org/project/jusText/), that try to spot and remove boilerplate content.
+By default, it only keeps "good" paragraph, that is text long enough to be a full sentences and with a low link density.
 
 **Normalizers**
 
@@ -66,6 +67,13 @@ What is *awesome* ? The rules are expressed in a (homemade) YAML-based syntax an
 The `phrasal.link_utils` module is a simple utility to process href links found on a page. It will resolve relative links
 (given a base URL), remove duplicates, strip anchors and exclude non-HTTP/HTTPs links.
 
+To get the list of links from a URL (i.e. `href` found on the page main content), use `extract_links`:
+```python
+import phrasal
+
+all_links = phrasal.extract_links('https://github.com/derlin/phrasal')
+```
+
 ## How to use
 
 Install the library using:
@@ -83,7 +91,7 @@ pip install -e .[showcase] # for streamlit
 ### As a library
 
 ```python
-from phrasal import *
+import phrasal
 ```
 Done.
 
@@ -99,8 +107,8 @@ Call one of the tools from the command line. Usage:
    classname [other arguments specific to classname]|[-h]
 
 Allowed classname arguments:
- - Crawler
- - JustextCrawler
+ - BsConverter
+ - JustextConverter
  - PatternSentenceFilter
  - MocySplitter
  - MosesSplitter
@@ -108,10 +116,9 @@ Allowed classname arguments:
 ```
 Here are some examples:
 ```bash
-python -m phrasal Crawler --links https://loremipsum.io/
-=== from URL https://loremipsum.io/
-https://www.facebook.com/sharer/sharer.php
-https://plus.google.com/share?url=https://loremipsum.io/
+python -m phrasal JustextConverter -u https://icosys.ch/swisscrawl
+=== from URL https://icosys.ch/swisscrawl
+As part of the SwissTranslation project, SwissCrawl is a corpus of 500,000+ Swiss German (GSW)  [...]
 [...]
 ```
 ```bash
@@ -127,6 +134,27 @@ python -m phrasal Normalizer -i raw_text.txt -o clean_text.txt
 No problem, each tool is more or less independent. 
 You may want to simplify the code a bit (e.g. remove the interface inheritance, transform classes into static scripts, I don't know), but I hope the source code is self-explaining. 
 
+## Running tests
+
+Tests are using `tox` and `pytest`. The easiest way to run them is:
+```bash
+pip install tox tox-venv
+tox
+```
+
+## Running the showcase
+
+A showcase using [streamlit](https://www.streamlit.io/) is included. 
+It allows you to test the full pipeline straight from your browser and also play with the different tools and options
+from the **Live Customizer**. Once you found what works for you, you can simply copy-paste the code snippet generated.
+
+Run the showcase locally by doing:
+```bash
+pip install streamlit
+streamlit run src/showcase/lit.py
+```
+
+
 ## License
 
 This work is licensed under Apache 2.0, so you can basically do anything with it. 
@@ -135,6 +163,7 @@ This work is licensed under Apache 2.0, so you can basically do anything with it
 
 ## Related resources
 
+* [get-html](https://pypi.org/project/get-html/) to get raw or renderer HTML (used in this repo)
 * [SwissText](https://github.com/swisstext)
 * [SwissTranslation project page](https://icosys.ch/swisscrawl)
 * :octopus::octopus::octopus::octopus::octopus::octopus::octopus::octopus: (I just love octopuses)
@@ -142,6 +171,4 @@ This work is licensed under Apache 2.0, so you can basically do anything with it
 
 ## TODO
 
-* twitter is now fully powered by JS, so text can't be accessed anymore... Find a way to circumvent that / use the old version?
-
-TODO: add some usecases, such as finding links, cleaning a text file, etc. add language support information 
+* add some usecases, such as finding links, cleaning a text file, etc. add language support information 

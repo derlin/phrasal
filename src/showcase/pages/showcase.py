@@ -1,15 +1,17 @@
 import base64
 
-import streamlit as st
 import pandas as pd
-from utils.showcase_constante import Pipeline as p, CrawlError
+import streamlit as st
+from get_html.env_defined_get import do_get
+from utils.showcase_constants import Pipeline as p
 
 pd.set_option('display.max_colwidth', None)
 
 
 @st.cache
 def fetch_url(p, url):
-    return p.crawler.crawl(url).text
+    resp = do_get(url)
+    return p.converter.to_text(resp.content, encoding=resp.encoding)
 
 
 @st.cache
@@ -84,5 +86,5 @@ def render():
                 st.markdown(f'<p style="text-align: right">{get_table_download_link(df)} ({len(df)} rows)</p>',
                             unsafe_allow_html=True)
                 st.table(df)
-            except CrawlError as e:
-                st.error(f'Oops, {e.name}: {e.message}')
+            except Exception as e:
+                st.error(f'{e.__class__.__name__}: {str(e)}')

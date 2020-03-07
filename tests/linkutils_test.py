@@ -1,4 +1,4 @@
-from phrasal.crawlers import link_utils
+from phrasal import link_utils
 import pytest
 
 
