@@ -18,6 +18,7 @@ def splitter():
          ['1.12$.', 'https://example.com:', 'another website']),
         ('Hello ;-)', ['Hello ;-)']),
         ('Chapter 1:1', ['Chapter 1:1']),
+        ("see article arXiv:1912.00159", ["see article arXiv:1912.00159"]),
         # quotes
         ('"I love this !" and "xx." are famous quote! yeah...',
          ['"I love this !" and "xx." are famous quote!', 'yeah...']),

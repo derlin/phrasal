@@ -68,17 +68,19 @@ class MocySplitter(ISplitter):
         # TODO: keep_newlines seems better with Justext, but http://www.raere-waggis.ch/p300fasnacht2007.htm
         # things like songs etc ...
 
-    def split(self, input_text, more=None):  # -> List[str]
+    def split(self, input_text, more=None, keep_newlines=None):  # -> List[str]
         """
         Split a text into sentences. Depending on the value of :py:attr:`.keep_newlines`, either :py:meth:`split_sentences`
         or :py:meth:`split_text` will be called.
 
         :param input_text: the input text
         :param more: override the class' parameter
+        :param keep_newlines: override the class' parameter
         :return: a list of sentences (no blank lines)
         """
         more = more if more is not None else self.more
-        return self._split_sentences(input_text, more) if self.keep_newlines else self._split_text(input_text, more)
+        keep_newlines = keep_newlines if keep_newlines is not None else self.keep_newlines
+        return self._split_sentences(input_text, more) if keep_newlines else self._split_text(input_text, more)
 
     def _split_sentences(self, input_text, more):  # -> List[str]
         """
@@ -109,14 +111,14 @@ class MocySplitter(ISplitter):
             if not line or line.isspace():
                 # Time to process this block; we've hit a blank or <p>
                 if current_paragraph:
-                    splits.extend(self.split_paragraph(current_paragraph, self.nb_prefixes, self.more))
+                    splits.extend(self.split_paragraph(current_paragraph, self.nb_prefixes, more))
                     current_paragraph = ""
             else:
                 current_paragraph += line + ' '
 
         if current_paragraph:
             # Do the leftover text.
-            splits.extend(self.split_paragraph(current_paragraph, self.nb_prefixes, self.more))
+            splits.extend(self.split_paragraph(current_paragraph, self.nb_prefixes, more))
 
         return splits
 
