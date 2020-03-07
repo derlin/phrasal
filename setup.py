@@ -1,5 +1,10 @@
 import setuptools
-from os import path
+import os
+
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
 
 setuptools.setup(
     name='phrasal',
@@ -7,27 +12,26 @@ setuptools.setup(
     author='Lucy Linder',
     author_email='lucy.derlin@gmail.com',
     license='Apache License 2.0',
-    description='Get meaningful text from HTML pages',
-    url='',
+    description='NLP tools to extract, normalize and filter sentences from text/HTML',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/derlin/phrasal',
 
     # install all packages found under src/
     package_dir={'': 'src'},
     packages=setuptools.find_packages('src', exclude=['showcase']),
-    #package_data={'': ['*.yaml', '*/*.yaml', '*.txt', '*/*.txt']},  # automatically include yaml/txt files
 
     # include other files such as html, css, etc
     include_package_data=True,  # read from MANIFEST.in
-    zip_safe=True, # not safe if the library needs to read package data from os (path is different from a zip)
+    zip_safe=True,  # not safe if the library needs to read package data from os (path is different from a zip)
 
-    classifiers=[
+    python_requires='>=3.6',
+
+    classifiers=(
         'Programming Language :: Python :: 3',
-        'License :: Apache 2.0 License',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-    ],
-
-    # for testing
-    # setup_requires=['pytest-runner'],
-    # tests_require=['pytest', 'pytest-check'],
+    ),
 
     # regular dependencies
     install_requires=[
