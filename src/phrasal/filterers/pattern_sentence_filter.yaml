@@ -100,9 +100,9 @@
       max: 0.25
 
 - too_many_symbols:
-  descr: 'too many /)&:'
+  descr: 'too many /)&:{'
   find:
-    pattern: '[/\)&:]'
+    pattern: '[/\)&:{]'
     count:
       max: 7
 
