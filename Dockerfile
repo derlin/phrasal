@@ -3,12 +3,8 @@ FROM python:3.7
 WORKDIR /app
 RUN pip install --upgrade pip
 
-# copy module sources and setup files
-COPY setup.py setup.cfg requirements.txt ./
-RUN pip install -r requirements.txt
-
 # install module
-COPY README.md ./
+COPY setup.py setup.cfg MANIFEST.in README.md ./
 COPY src ./src
 RUN pip install .[showcase]
 
